@@ -1,0 +1,194 @@
+body {
+  line-height: 1.3;
+}
+
+body, svg {
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+#content {
+  text-align: center;
+}
+
+.clearfix:after {
+   visibility: hidden;
+   display: block;
+   font-size: 0;
+   content: " ";
+   clear: both;
+   height: 0;
+ }
+.clearfix { display: inline-block; }
+/* start commented backslash hack \*/
+* html .clearfix { height: 1%; }
+.clearfix { display: block; }
+/* close commented backslash hack */
+
+
+/* =============================================================================
+   HEADER
+ */
+
+header {
+  text-align: center;
+  width: 580px;
+  margin: 40px auto;
+}
+
+header h1 {
+  font-size: 1.75em;
+  font-weight: 700;
+  margin: 0 0 .75em;
+}
+
+header p {
+  font-size: 1.25em;
+  font-weight: 100;
+  margin: 0 0 1em;
+}
+
+header .small {
+  font-size: 14px;
+  color: #a5a5a5;
+}
+
+svg {
+  font-size: 10px;
+}
+
+
+/* =============================================================================
+   BAR CHARTS
+ */
+
+.bar-chart .bar {
+  fill: #888;
+  /*shape-rendering: crispEdges;*/
+}
+
+.bar-chart text {
+  fill: black;
+}
+
+.bar-chart .x-axis-label {
+  font-size: 14px;
+  font-weight: 100;
+  text-transform: lowercase;
+  fill: #999;
+}
+
+.bar-chart .y-axis-label {
+  font-size: 12px;
+  font-weight: 600;
+  fill: black;
+}
+
+.bar-chart .axis path, .bar-chart .axis line {
+  shape-rendering: crispEdges;
+}
+
+.bar-chart path, .bar-chart .domain {
+  fill: none;
+  stroke: none;
+}
+
+.bar-chart .tick line {
+  stroke: rgba(80,80,80,.18);
+}
+
+
+/* =============================================================================
+   HISTOGRAMS
+ */
+
+.histogram .bar {
+  fill: steelblue;
+}
+
+.histogram .x-axis-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  fill: black;
+}
+
+.histogram .y-axis-label {
+  font-size: 11px;
+  font-weight: 400;
+  fill: black;
+}
+
+.histogram .axis path, .histogram .axis line {
+  shape-rendering: crispEdges;
+}
+
+.histogram .y path, .histogram .y .domain {
+  fill: none;
+  stroke: none;
+}
+
+.histogram .tick line {
+  stroke: rgba(80,80,80,.18);
+}
+
+
+/* =============================================================================
+   MODULE
+ */
+
+.module {
+  clear: both;
+  text-align: left;
+  width: 1120px;
+  margin: 0 auto;
+  padding-bottom: 20px;
+}
+
+
+.module .info {
+  float: left;
+  width: 150px;
+  padding-right: 20px;
+}
+
+.module .info h1 {
+  font-size: 18px;
+  font-weight: 700;
+  color: black;
+  margin: .5em 0 .1em;
+  text-transform: uppercase;
+}
+
+.module .info h2 {
+  font-size: 16px;
+  font-weight: 400;
+  color: #999;
+  margin: 0;
+}
+
+
+.module .marks {
+  float: left;
+  width: 50px;
+  padding-right: 20px;
+  min-height: 1px;
+}
+
+.module .marks span {
+  font-size: 32px;
+  font-weight: bold;
+  color: black;
+}
+
+
+.module .distribution {
+  float: left;
+  width: 400px;
+  padding-right: 20px;
+}
+
+
+.module .individual {
+  float: left;
+  width: 450px;
+}
