@@ -89,6 +89,32 @@ function histogram() {
           .attr("text-anchor", "middle")
           .text(function(d) { return formatCount(d.length); });
 
+      var marks = svg.append("g")
+          .attr("class", "marks");
+
+      window.events.on("highlight", function(candidateNumbers) {
+
+        var results = candidateNumbers.map(function(candidateNumber, i) {
+          return _.find(data, { candidateNumber: candidateNumber });
+        });
+
+        var selection = marks.selectAll(".mark").data(results);
+
+        var tickWidth = 2;
+
+        selection.exit().remove();
+
+        selection.enter().append("rect")
+            .attr("class", "mark")
+          .merge(selection)
+            .attr("x", function(d) { if (d) return x(d.marks) - (tickWidth / 2); })
+            .attr("y", 0)
+            .attr("width", tickWidth)
+            .attr("height", height)
+            .attr("visibility", function(d) { return d == null ? "hidden" : ""; })
+            .style("fill", function(d, i) { return window.highlightColors[i]; });
+
+      });
 
     });
   }
