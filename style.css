@@ -204,9 +204,7 @@ svg {
 }
 
 .category {
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 50px;
-  margin-bottom: 50px;
+  margin-bottom: 100px;
 }
 
 .category h1 {
