@@ -6,18 +6,23 @@ body, svg {
   font-family: Helvetica, Arial, sans-serif;
 }
 
+#container {
+  width: 1120px;
+  margin: 0 auto;
+}
+
 #content {
   text-align: center;
 }
 
 .clearfix:after {
-   visibility: hidden;
-   display: block;
-   font-size: 0;
-   content: " ";
-   clear: both;
-   height: 0;
- }
+  visibility: hidden;
+  display: block;
+  font-size: 0;
+  content: " ";
+  clear: both;
+  height: 0;
+}
 .clearfix { display: inline-block; }
 /* start commented backslash hack \*/
 * html .clearfix { height: 1%; }
@@ -31,8 +36,9 @@ body, svg {
 
 header {
   text-align: center;
-  width: 580px;
+  width: 620px;
   margin: 40px auto;
+  line-height: 1.45;
 }
 
 header h1 {
@@ -42,7 +48,7 @@ header h1 {
 }
 
 header p {
-  font-size: 1.25em;
+  font-size: 1.2em;
   font-weight: 100;
   margin: 0 0 1em;
 }
@@ -54,6 +60,60 @@ header .small {
 
 svg {
   font-size: 10px;
+}
+
+
+/* =============================================================================
+   SEARCH
+ */
+
+#search {
+  margin: 60px 0 70px;
+}
+
+#search .candidate-number {
+  font-size: 28px;
+  font-weight: bold;
+  border: none;
+  border-bottom: 2px dotted #ccc;
+  color: black;
+  width: 300px;
+  padding: 5px;
+  margin: 0 auto;
+  outline: none;
+  text-transform: uppercase;
+  text-align: center;
+  display: block;
+}
+
+#search .candidate-number:focus {
+  border-color: #999;
+}
+
+#search .candidate-number.error {
+  color: #c7001b;
+  border-color: #c7001b;
+}
+
+::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  font-weight: normal;
+  text-transform: none;
+  color: #ccc;
+}
+::-moz-placeholder { /* Firefox 19+ */
+  font-weight: normal;
+  text-transform: none;
+  color: #ccc;
+}
+:-ms-input-placeholder { /* IE 10+ */
+  font-weight: normal;
+  text-transform: none;
+  color: #ccc;
+}
+:-moz-placeholder { /* Firefox 18- */
+  font-weight: normal;
+  text-transform: none;
+  color: #ccc;
 }
 
 
@@ -71,15 +131,16 @@ svg {
 }
 
 .bar-chart .x-axis-label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 100;
   text-transform: lowercase;
   fill: #999;
 }
 
 .bar-chart .y-axis-label {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
   fill: black;
 }
 
@@ -106,7 +167,7 @@ svg {
 }
 
 .histogram .x-axis-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   fill: black;
@@ -139,9 +200,7 @@ svg {
 .module {
   clear: both;
   text-align: left;
-  width: 1120px;
   margin: 0 auto;
-  padding-bottom: 20px;
 }
 
 
@@ -167,17 +226,27 @@ svg {
 }
 
 
-.module .marks {
+.module .marks-list {
   float: left;
   width: 50px;
   padding-right: 20px;
   min-height: 1px;
+  margin-top: 10px;
 }
 
-.module .marks span {
-  font-size: 32px;
+.module .marks-list .item {
+  height: 54px;
+}
+
+.module .marks-list .candidate-number {
+  font-size: 14px;
   font-weight: bold;
-  color: black;
+  color: #aaa !important;
+}
+
+.module .marks-list .marks {
+  font-size: 22px;
+  font-weight: bold;
 }
 
 

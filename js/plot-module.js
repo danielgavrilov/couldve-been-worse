@@ -22,7 +22,7 @@ var moduleNames = {
   "MSIN7008": "Entrepreneurship: Theory and Practice",
   "MSIN716P": "Management Accounting for Engineers",
   "STAO6002": "",
-  "Overall": ""
+  "Overall": "Basically average of all"
 };
 
 function plotModule() {
@@ -44,10 +44,8 @@ function plotModule() {
       info.append("h2")
           .text(moduleNames[d.moduleCode])
 
-      var mark = root.append("div")
-          .attr("class", "marks")
-          .datum(d.data)
-          .append("span");
+      var marksList = root.append("div")
+          .attr("class", "marks-list");
 
       root.append("div")
           .attr("class", "distribution")
@@ -59,12 +57,24 @@ function plotModule() {
           .datum(d.data)
           .call(individualChart)
 
-      window.events.on("highlight", function(candidateNumber) {
-        mark.text(function(d) {
-          var result = _.find(d, { candidateNumber: candidateNumber });
-          if (result) return result.marks;
-          return "";
-        })
+      window.events.on("highlight", function(candidateNumbers) {
+
+        var selection = marksList.selectAll(".item")
+            .data(candidateNumbers);
+
+        selection.exit().remove();
+
+        selection.enter().append("div")
+            .attr("class", "item")
+          .merge(selection)
+            .style("color", function(_, i) { return window.highlightColors[i]; })
+            .html(function(candidateNumber) {
+              var result = _.find(d.data, { candidateNumber: candidateNumber });
+              if (result) {
+                return "<div class='candidate-number'>" + result.candidateNumber + "</div>" +
+                       "<div class='marks'>" + result.marks + "</div>";
+              }
+            })
       });
 
     });

@@ -47,7 +47,7 @@ function histogram() {
       svg.append("text")
           .attr("class", "x-axis-label")
           .attr("transform", "translate(" + width / 2 + "," + height + ")")
-          .attr("y", 35)
+          .attr("y", 32)
           .style("text-anchor", "middle")
           .text("Marks");
 
@@ -72,7 +72,8 @@ function histogram() {
       bar.append("rect")
           .attr("x", 1)
           .attr("width", x(bins[0].x1) - x(bins[0].x0) - 1)
-          .attr("height", function(d) { return height - y(d.length); });
+          .attr("height", function(d) { return height - y(d.length); })
+          .style("fill", function(d) { return window.color(d.x0); });
 
       bar.append("text")
           .attr("dy", ".375em")

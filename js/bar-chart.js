@@ -19,10 +19,6 @@ function barChart() {
           .domain([0, 100])
           .range([height, 0]);
 
-      var color = d3.scaleThreshold()
-          .domain([40, 50, 60, 70])
-          .range(["#fc9292", "#f9d390", "#aadf8f", "#8dcaee", "#b0a7f5"]);
-
       var yAxis = d3.axisLeft(y)
           .ticks(5)
           .tickSize(-width)
@@ -49,7 +45,7 @@ function barChart() {
           .attr("class", "y-axis-label")
           .attr("transform", "rotate(-90)")
           .attr("x", -height / 2)
-          .attr("y", -38)
+          .attr("y", -35)
           .attr("dy", ".71em")
           .style("text-anchor", "middle")
           .text("Marks");
@@ -62,7 +58,7 @@ function barChart() {
           .attr("width", x.bandwidth())
           .attr("y", function(d) { return y(d.marks); })
           .attr("height", function(d) { return height - y(d.marks); })
-          .style("fill", function(d) { return color(d.marks); })
+          .style("fill", function(d) { return window.color(d.marks); })
           .on("mouseenter", function(d) {
             window.mouseHighlight(d.candidateNumber);
           })
@@ -70,18 +66,13 @@ function barChart() {
             window.mouseHighlight(null);
           });
 
-      window.events.on("highlight", function(candidateNumber) {
-        console.log(candidateNumber);
+      window.events.on("highlight", function(candidateNumbers) {
         svg.selectAll(".bar")
           .style("fill", function(d) {
-            return d.candidateNumber == candidateNumber ? "red" : color(d.marks);
-          })
+            var index = candidateNumbers.indexOf(d.candidateNumber);
+            return index >= 0 ? window.highlightColors[index] : window.color(d.marks);
+          });
       });
-
-      window.events.on("unhighlight", function() {
-        svg.selectAll(".bar")
-          .style("fill", "");
-      })
 
     });
   }

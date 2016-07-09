@@ -62,10 +62,29 @@ function aggregateModule(results, moduleCode) {
   return _.sortBy(results, "marks");
 }
 
+window.color = d3.scaleThreshold()
+    .domain([40, 50, 60, 70])
+    .range(["#fc9292", "#f9d390", "#aadf8f", "#8dcaee", "#b0a7f5"]);
+
+window.highlightColors = ["#000", "#d3201d"];
+
 window.events = new EventEmitter();
 
+var mouseResult = null,
+    searchResult = null;
+
 window.mouseHighlight = function(candidateNumber) {
-  window.events.emit("highlight", candidateNumber);
+  mouseResult = candidateNumber;
+  notify();
+}
+
+window.searchHighlight = function(candidateNumber) {
+  searchResult = candidateNumber;
+  notify();
+}
+
+function notify() {
+  window.events.emit("highlight", [searchResult, mouseResult]);
 }
 
 var plotModules = [
@@ -82,6 +101,15 @@ var plotModules = [
   "Overall"
 ];
 
+function search(data, query) {
+  var candidateNumbers = data.map(function(d) {
+    return d.candidateNumber;
+  });
+  return _.find(candidateNumbers, function(candidateNumber) {
+    return _.startsWith(candidateNumber.toLowerCase(), query.toLowerCase());
+  });
+}
+
 Promise.all([
   get("csv", "data/bsc_yr2.csv"),
   get("csv", "data/meng_yr2.csv"),
@@ -91,24 +119,6 @@ Promise.all([
 }).then(function(data) {
 
   var root = d3.select("#content");
-
-  // root.append("div")
-  //     .attr("class", "individual")
-  //   .selectAll(".chart")
-  //     .data(plotModules.map(function(moduleCode) { return aggregateModule(data, moduleCode); }))
-  //   .enter()
-  //     .append("div")
-  //     .attr("class", "chart")
-  //     .call(individualChart);
-
-  // root.append("div")
-  //     .attr("class", "mark-distribution")
-  //   .selectAll(".chart")
-  //     .data(plotModules.map(function(moduleCode) { return aggregateModule(data, moduleCode); }))
-  //   .enter()
-  //     .append("div")
-  //     .attr("class", "chart")
-  //     .call(markDistribution);
 
   var plot = plotModule();
 
@@ -121,7 +131,15 @@ Promise.all([
       }))
     .enter()
       .append("div")
-      .attr("class", "module")
+      .attr("class", "module clearfix")
       .call(plot);
+
+  var searchInput = d3.select("#search .candidate-number");
+
+  searchInput.on("input", function() {
+    var result = search(data, this.value);
+    searchInput.classed("error", result == null);
+    window.searchHighlight(result);
+  });
 
 });
