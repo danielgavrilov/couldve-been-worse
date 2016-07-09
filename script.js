@@ -102,7 +102,6 @@ var minorModules = [
   "CEGE201M",
   "COMP209P",
   "ELEC210P",
-  "ELEC210P",
   "MSIN6001B",
   "MSIN7008",
   "MSIN716P"
