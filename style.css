@@ -188,7 +188,7 @@ svg {
   stroke: none;
 }
 
-.histogram .tick line {
+.histogram .y .tick line {
   stroke: rgba(80,80,80,.18);
 }
 
