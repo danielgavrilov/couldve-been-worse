@@ -64,7 +64,7 @@ function aggregateModule(results, moduleCode) {
 
 window.color = d3.scaleThreshold()
     .domain([40, 50, 60, 70])
-    .range(["#fc9292", "#f9d390", "#aadf8f", "#8dcaee", "#b0a7f5"]);
+    .range(["#fc9292", "#fbd89b", "#a2e096", "#8dc9ec", "#b0a7f1"]);
 
 window.highlightColors = ["#000", "#d3201d"];
 
