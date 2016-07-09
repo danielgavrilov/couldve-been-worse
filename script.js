@@ -87,7 +87,7 @@ function notify() {
   window.events.emit("highlight", [searchResult, mouseResult]);
 }
 
-var plotModules = [
+var coreModules = [
   "COMP201P",
   "COMP202P",
   "COMP203P",
@@ -95,11 +95,19 @@ var plotModules = [
   "COMP205P",
   "COMP206P",
   "COMP207P",
-  "COMP209P",
-  "CEGE201M",
-  "ELEC210P",
   "Overall"
 ];
+
+var minorModules = [
+  "CEGE201M",
+  "COMP209P",
+  "ELEC210P",
+  "ELEC210P",
+  "MSIN6001B",
+  "MSIN7008",
+  "MSIN716P"
+];
+
 
 function search(data, query) {
   var candidateNumbers = data.map(function(d) {
@@ -109,6 +117,26 @@ function search(data, query) {
     return _.startsWith(candidateNumber.toLowerCase(), query.toLowerCase());
   });
 }
+
+function plotModuleCodes(moduleCodes) {
+  return function(selection) {
+    selection.each(function(data) {
+
+      d3.select(this).selectAll(".module")
+          .data(moduleCodes.map(function(moduleCode) {
+            return {
+              moduleCode: moduleCode,
+              data: aggregateModule(data, moduleCode)
+            }
+          }))
+        .enter()
+          .append("div")
+          .attr("class", "module clearfix")
+          .call(plotModule());
+    });
+  }
+}
+
 
 Promise.all([
   get("csv", "data/bsc_yr2.csv"),
@@ -120,19 +148,27 @@ Promise.all([
 
   var root = d3.select("#content");
 
-  var plot = plotModule();
+  var core = root.append("div")
+      .attr("class", "category core-modules");
 
-  root.selectAll(".module")
-      .data(plotModules.map(function(moduleCode) {
-        return {
-          moduleCode: moduleCode,
-          data: aggregateModule(data, moduleCode)
-        }
-      }))
-    .enter()
-      .append("div")
-      .attr("class", "module clearfix")
-      .call(plot);
+  core.append("h1")
+      .text("Core modules")
+
+  core.append("div")
+      .attr("class", "modules")
+      .datum(data)
+      .call(plotModuleCodes(coreModules));
+
+  var minors = root.append("div")
+      .attr("class", "category minor-modules");
+
+  minors.append("h1")
+      .text("Minor modules")
+
+  minors.append("div")
+      .attr("class", "modules")
+      .datum(data)
+      .call(plotModuleCodes(minorModules));
 
   var searchInput = d3.select("#search .candidate-number");
 

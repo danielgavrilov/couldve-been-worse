@@ -203,6 +203,18 @@ svg {
   margin: 0 auto;
 }
 
+.category {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 50px;
+  margin-bottom: 50px;
+}
+
+.category h1 {
+  font-size: 21px;
+  text-transform: uppercase;
+  margin: 30px 0;
+}
+
 
 .module .info {
   float: left;
