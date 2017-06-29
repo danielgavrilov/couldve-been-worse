@@ -1,7 +1,7 @@
 function barChart() {
 
   var margin = {top: 10, right: 10, bottom: 35, left: 50},
-      width = 450 - margin.left - margin.right,
+      width = 460 - margin.left - margin.right,
       height = 140 - margin.top - margin.bottom;
 
   function chart(selection) {

@@ -1,25 +1,4 @@
-function tryParseFloats(obj) {
-  for (var key in obj) {
-    var value = parseFloat(obj[key]);
-    if (!isNaN(value)) obj[key] = value;
-  }
-  return obj;
-}
-
-function removeEmptyStrings(obj) {
-  for (var key in obj) {
-    if (obj[key] === "") delete obj[key];
-  }
-  return obj;
-}
-
-function removeKeys(ignoredKeys) {
-  return function(obj) {
-    for (var key in obj) {
-      if (_.includes(ignoredKeys, key)) delete obj[key];
-    }
-  }
-}
+var CANDIDATE_NUMBER_LABEL = "Student Candidate Number";
 
 function get(type, url) {
   return new Promise(function(resolve, reject) {
@@ -30,36 +9,101 @@ function get(type, url) {
   });
 }
 
-function parse(data, label) {
+function parse(data) {
 
-  data.forEach(removeEmptyStrings);
-  data.forEach(tryParseFloats);
-  data.forEach(removeKeys(["", "Outcome"]));
+  // data comes in as a CSV string
 
-  data = _.chunk(data, 2);
-  data = data.map(parseSingle);
+  var csv = _(data)
 
-  return data;
+      // split on every newline (whether CRLF of just LF)
+      .split(/\r?\n/g)
 
-}
+      // split every line on comma
+      .map((row) => row.split(","))
 
-function parseSingle(rows) {
-  return {
-    candidateNumber: rows[0]["Candidate Number"],
-    modules: rows[1]
-  };
-}
+      // remove the first few rows that contain heading & description
+      .dropWhile((row) => row[0] !== CANDIDATE_NUMBER_LABEL)
 
-function aggregateModule(results, moduleCode) {
-  results = results.filter(function(result) {
-    return result.modules[moduleCode] != null;
-  }).map(function(result) {
+      // remove empty rows
+      .filter((row) => !_.every(row, (cell) => cell === ""))
+
+      // group every 3 rows
+      .chunk(3)
+
+      // remove groups whose first row does not start with "Student Candidate Number"
+      .filter((row) => row[0][0] === CANDIDATE_NUMBER_LABEL)
+
+      // get value (from the lodash object)
+      .value()
+
+  // now rows are grouped by candidate number
+  // still need to extract/structure the data
+
+  var candidates = csv.map((group) => {
+
+    // find the index where the module grades start
+    var modulesIndex = _.findIndex(group[0], (cell) => cell === "Credit");
+
+    // group each column, containing module credit, code & grade (in that order)
+    var modules = _.unzip(
+      group.map(
+        (row) => row.slice(modulesIndex + 1)
+      )
+    );
+
+    // convert the arrays to JSON objects (with appropriate labels)
+    modules = modules.map((module) => {
+      return {
+        credit: module[0],
+        moduleCode: module[1],
+        marks: module[2]
+      };
+    });
+
+    // remove modules if credit is empty string
+    modules = modules.filter((module) => module.credit !== "");
+
+    // remove modules whose credit does not start with a digit
+    // note use of takeWhile: collects all modules in order up until it reaches
+    // a module whose credit does not start with digit
+    modules = _.takeWhile(modules, (module) => /^\d/.test(module.credit));
+
+    // cast types
+    modules.forEach((module) => {
+      module.credit = parseFloat(module.credit);
+      module.marks = parseFloat(module.marks);
+    });
+
+    // convert array of modules to object with module code as key
+    modules = _.keyBy(modules, "moduleCode");
+
+    var totalCredit = _.sumBy(_.values(modules), (d) => d.credit);
+    var overallMarks = _.sumBy(_.values(modules), (d) => d.marks * d.credit) / totalCredit;
+
+    modules.Overall = {
+      marks: overallMarks.toFixed(0)
+    };
+
     return {
-      candidateNumber: result.candidateNumber,
-      marks: result.modules[moduleCode]
+      candidateNumber: group[2][0],
+      modules: modules
+    };
+
+  });
+
+  return candidates;
+}
+
+function aggregateModule(candidates, moduleCode) {
+  candidates = candidates.filter(function(candidate) {
+    return candidate.modules[moduleCode] != null;
+  }).map(function(candidate) {
+    return {
+      candidateNumber: candidate.candidateNumber,
+      marks: candidate.modules[moduleCode].marks
     }
-  })
-  return _.sortBy(results, "marks");
+  });
+  return _.sortBy(candidates, "marks");
 }
 
 window.color = d3.scaleThreshold()
@@ -88,94 +132,85 @@ function notify() {
 }
 
 var coreModules = [
-  "COMP201P",
-  "COMP202P",
-  "COMP203P",
-  "COMP204P",
-  "COMP205P",
-  "COMP206P",
-  "COMP207P",
+  "COMP3004",
+  "COMP3005",
+  "COMP3011",
+  "COMP3012",
+  "COMP3013",
+  "COMP3035",
+  "COMP3058",
+  "COMP3080",
+  "COMP3091",
+  "COMP3095",
+  "COMP3096A",
+  "COMP312P",
+  "COMP313P",
   "Overall"
 ];
 
-var minorModules = [
-  "CEGE201M",
-  "COMP209P",
-  "ELEC210P",
-  "MSIN6001B",
-  "MSIN7008",
-  "MSIN716P"
-];
-
-
-function search(data, query) {
-  var candidateNumbers = data.map(function(d) {
-    return d.candidateNumber;
-  });
-  return _.find(candidateNumbers, function(candidateNumber) {
-    return _.startsWith(candidateNumber.toLowerCase(), query.toLowerCase());
+function findCandidate(candidates, query) {
+  if (query === "") return null;
+  return _.find(candidates, function(candidate) {
+    return _.startsWith(candidate.candidateNumber.toLowerCase(), query.toLowerCase());
   });
 }
 
-function plotModuleCodes(moduleCodes) {
-  return function(selection) {
-    selection.each(function(data) {
+function plotModuleCodes(container, candidates, moduleCodes) {
 
-      d3.select(this).selectAll(".module")
-          .data(moduleCodes.map(function(moduleCode) {
-            return {
-              moduleCode: moduleCode,
-              moduleName: window.moduleNames[moduleCode],
-              data: aggregateModule(data, moduleCode)
-            }
-          }))
-        .enter()
-          .append("div")
-          .attr("class", "module clearfix")
-          .call(plotModule());
-    });
-  }
+  moduleCodes = moduleCodes.sort();
+
+  var moduleData = moduleCodes.map(function(moduleCode) {
+    return {
+      moduleCode: moduleCode,
+      moduleName: window.moduleNames[moduleCode],
+      candidates: aggregateModule(candidates, moduleCode)
+    }
+  });
+
+  var moduleElems = container.selectAll(".module")
+      .data(moduleData, (d) => d.moduleCode);
+
+  moduleElems.enter()
+      .append("div")
+      .attr("class", "module clearfix")
+      .call(plotModule());
+
+  moduleElems.exit()
+      .remove();
 }
 
 
 Promise.all([
-  get("csv", "data/2015-2016/bsc_yr2.csv"),
-  get("csv", "data/2015-2016/meng_yr2.csv"),
-  get("csv", "data/2015-2016/meng_yr2b.csv")
+  get("text", "data/2016-2017/bsc_yr3.csv"),
+  get("text", "data/2016-2017/meng_yr3.csv"),
+  get("text", "data/2016-2017/meng_mathcomp_yr3.csv")
 ]).then(function(sheets) {
   return d3.merge(sheets.map(parse));
-}).then(function(data) {
+}).then(function(candidates) {
 
   var root = d3.select("#content");
 
-  var core = root.append("div")
-      .attr("class", "category core-modules");
+  var modules = root.append("div")
+      .attr("class", "category modules");
 
-  core.append("h1")
-      .text("Core modules")
-
-  core.append("div")
-      .attr("class", "modules")
-      .datum(data)
-      .call(plotModuleCodes(coreModules));
-
-  var minors = root.append("div")
-      .attr("class", "category minor-modules");
-
-  minors.append("h1")
-      .text("Minor modules")
-
-  minors.append("div")
-      .attr("class", "modules")
-      .datum(data)
-      .call(plotModuleCodes(minorModules));
+  plotModuleCodes(modules, candidates, coreModules);
 
   var searchInput = d3.select("#search .candidate-number");
 
   searchInput.on("input", function() {
-    var result = search(data, this.value);
-    searchInput.classed("error", result == null);
-    window.searchHighlight(result);
+    var query = this.value;
+    var candidate = findCandidate(candidates, query);
+    if (candidate == null) {
+      searchInput.classed("error", query != "");
+      plotModuleCodes(modules, candidates, coreModules);
+      window.searchHighlight(undefined);
+      return;
+    }
+    searchInput.classed("error", false);
+    var candidateNumber = candidate.candidateNumber;
+    var candidateModules = _.keys(candidate.modules);
+    plotModuleCodes(modules, candidates, candidateModules);
+    window.searchHighlight(candidateNumber);
   });
 
 });

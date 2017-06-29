@@ -22,12 +22,12 @@ function plotModule() {
 
       root.append("div")
           .attr("class", "distribution")
-          .datum(d.data)
+          .datum(d.candidates)
           .call(markDistribution)
 
       root.append("div")
           .attr("class", "individual")
-          .datum(d.data)
+          .datum(d.candidates)
           .call(individualChart)
 
       window.events.on("highlight", function(candidateNumbers) {
@@ -42,7 +42,7 @@ function plotModule() {
           .merge(selection)
             .style("color", function(_, i) { return window.highlightColors[i]; })
             .html(function(candidateNumber) {
-              var result = _.find(d.data, { candidateNumber: candidateNumber });
+              var result = _.find(d.candidates, { candidateNumber: candidateNumber });
               if (result) {
                 return "<div class='candidate-number'>" + result.candidateNumber + "</div>" +
                        "<div class='marks'>" + result.marks + "</div>";
