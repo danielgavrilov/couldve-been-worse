@@ -19,19 +19,23 @@ function parse(data) {
       .split(/\r?\n/g)
 
       // split every line on comma
-      .map((row) => row.split(","))
+      .map(function(row) { return row.split(",") })
 
       // remove the first few rows that contain heading & description
-      .dropWhile((row) => row[0] !== CANDIDATE_NUMBER_LABEL)
+      .dropWhile(function(row) { return row[0] !== CANDIDATE_NUMBER_LABEL })
 
       // remove empty rows
-      .filter((row) => !_.every(row, (cell) => cell === ""))
+      .filter(function(row) {
+        return !_.every(row, function(cell) { return cell === "" })
+      })
 
       // group every 3 rows
       .chunk(3)
 
       // remove groups whose first row does not start with "Student Candidate Number"
-      .filter((row) => row[0][0] === CANDIDATE_NUMBER_LABEL)
+      .filter(function(row) {
+        return row[0][0] === CANDIDATE_NUMBER_LABEL
+      })
 
       // get value (from the lodash object)
       .value()
@@ -39,20 +43,20 @@ function parse(data) {
   // now rows are grouped by candidate number
   // still need to extract/structure the data
 
-  var candidates = csv.map((group) => {
+  var candidates = csv.map(function(group) {
 
     // find the index where the module grades start
-    var modulesIndex = _.findIndex(group[0], (cell) => cell === "Credit");
+    var modulesIndex = _.findIndex(group[0], function(cell) { return cell === "Credit" });
 
     // group each column, containing module credit, code & grade (in that order)
     var modules = _.unzip(
-      group.map(
-        (row) => row.slice(modulesIndex + 1)
-      )
+      group.map(function(row) {
+        return row.slice(modulesIndex + 1)
+      })
     );
 
     // convert the arrays to JSON objects (with appropriate labels)
-    modules = modules.map((module) => {
+    modules = modules.map(function(module) {
       return {
         credit: module[0],
         moduleCode: module[1],
@@ -61,15 +65,15 @@ function parse(data) {
     });
 
     // remove modules if credit is empty string
-    modules = modules.filter((module) => module.credit !== "");
+    modules = modules.filter(function(module) { return module.credit !== "" });
 
     // remove modules whose credit does not start with a digit
     // note use of takeWhile: collects all modules in order up until it reaches
     // a module whose credit does not start with digit
-    modules = _.takeWhile(modules, (module) => /^\d/.test(module.credit));
+    modules = _.takeWhile(modules, function(module) { return /^\d/.test(module.credit) });
 
     // cast types
-    modules.forEach((module) => {
+    modules.forEach(function(module) {
       module.credit = parseFloat(module.credit);
       module.marks = parseFloat(module.marks);
     });
@@ -77,8 +81,8 @@ function parse(data) {
     // convert array of modules to object with module code as key
     modules = _.keyBy(modules, "moduleCode");
 
-    var totalCredit = _.sumBy(_.values(modules), (d) => d.credit);
-    var overallMarks = _.sumBy(_.values(modules), (d) => d.marks * d.credit) / totalCredit;
+    var totalCredit = _.sumBy(_.values(modules), function(d) { return d.credit });
+    var overallMarks = _.sumBy(_.values(modules), function(d) { return d.marks * d.credit }) / totalCredit;
 
     modules.Overall = {
       marks: overallMarks.toFixed(0)
@@ -168,7 +172,7 @@ function plotModuleCodes(container, candidates, moduleCodes) {
   });
 
   var moduleElems = container.selectAll(".module")
-      .data(moduleData, (d) => d.moduleCode);
+      .data(moduleData, function(d) { return d.moduleCode });
 
   moduleElems.enter()
       .append("div")
