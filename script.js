@@ -139,9 +139,9 @@ function plotModuleCodes(moduleCodes) {
 
 
 Promise.all([
-  get("csv", "data/bsc_yr2.csv"),
-  get("csv", "data/meng_yr2.csv"),
-  get("csv", "data/meng_yr2b.csv")
+  get("csv", "data/2015-2016/bsc_yr2.csv"),
+  get("csv", "data/2015-2016/meng_yr2.csv"),
+  get("csv", "data/2015-2016/meng_yr2b.csv")
 ]).then(function(sheets) {
   return d3.merge(sheets.map(parse));
 }).then(function(data) {
