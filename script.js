@@ -125,6 +125,7 @@ function plotModuleCodes(moduleCodes) {
           .data(moduleCodes.map(function(moduleCode) {
             return {
               moduleCode: moduleCode,
+              moduleName: window.moduleNames[moduleCode],
               data: aggregateModule(data, moduleCode)
             }
           }))
